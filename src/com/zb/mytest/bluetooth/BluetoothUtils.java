@@ -12,7 +12,7 @@
  * 修   改  人：
  * 修改内容：
  ************************************************************************************************/
-package com.zb.mytest;
+package com.zb.mytest.bluetooth;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

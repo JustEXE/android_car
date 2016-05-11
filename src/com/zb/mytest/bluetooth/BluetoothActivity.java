@@ -12,7 +12,7 @@
  * 修   改  人：
  * 修改内容：
  ************************************************************************************************/
-package com.zb.mytest;
+package com.zb.mytest.bluetooth;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +23,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
+
+import com.zb.mytest.R;
+import com.zb.mytest.ToastUtil;
+import com.zb.mytest.R.id;
+import com.zb.mytest.R.layout;
 
 import android.app.Activity;
 import android.app.AlertDialog;
