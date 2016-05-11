@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.zb.mytest"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="15"
+        android:targetSdkVersion="20" />
+
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="com.zb.mytest.BluetoothActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service android:name="com.zb.mytest.MyService" >
+        </service>
+        <service
+            android:name="com.zb.mytest.MyRemoteService"
+            android:process=":remote" >
+        </service>
+        <service android:name="com.zb.mytest.MyAIDLService" >
+        </service>
+        <service android:name="com.zb.mytest.aidl.MyAIDL1Service" >
+        </service>
+
+        <receiver
+            android:name="com.zb.mytest.broadcast.MyBroadcastReceiver"
+            android:process="" >
+            <intent-filter>
+                <action android:name="com.zb.mytest.broadcast.MyBroadcastReceiver" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="com.zb.mytest.broadcast.MyLookMessgeReceiver"
+            android:process="" >
+            <intent-filter android:priority="1000" >
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <provider
+            android:name="com.zb.mytest.contentprovider.MyContentProvider"
+            android:authorities="com.zb.test.contentprovider" >
+        </provider>
+    </application>
+
+</manifest>
