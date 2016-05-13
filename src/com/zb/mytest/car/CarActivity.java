@@ -71,6 +71,7 @@ public class CarActivity extends BaseActivity {
 	private static final int MSG_READ = 1;
 	private static final int MSG_RESTART_SERVER_THREAD = 3;
 	private static final int MSG_SEND = 4;
+	private static final int MSG_STARTSERVER = 5;
 
 	private static final UUID MY_UUID_SECURE = UUID.fromString("FA87C0D0-AFAC-11DE-8A39-0800200C9A66");
 	private Button bt1, bt2, bt3, bt4, bt5, bt6, bt7, bt8, bt9, bt10;
@@ -125,42 +126,42 @@ public class CarActivity extends BaseActivity {
 			if (!checkCanControl()) {
 				return;
 			}
-			acceptThreadControl("1");
+			acceptThreadControl(MSG_SEND, "1");
 			myLv2Adapter.add("操作：左前");
 			break;
 		case R.id.button2:// 前进
 			if (!checkCanControl()) {
 				return;
 			}
-			acceptThreadControl("2");
+			acceptThreadControl(MSG_SEND, "2");
 			myLv2Adapter.add("操作：前进");
 			break;
 		case R.id.button3:// 右前
 			if (!checkCanControl()) {
 				return;
 			}
-			acceptThreadControl("3");
+			acceptThreadControl(MSG_SEND, "3");
 			myLv2Adapter.add("操作：右前");
 			break;
 		case R.id.button4:// 左转
 			if (!checkCanControl()) {
 				return;
 			}
-			acceptThreadControl("4");
+			acceptThreadControl(MSG_SEND, "4");
 			myLv2Adapter.add("操作：左转");
 			break;
 		case R.id.button5:// 后退
 			if (!checkCanControl()) {
 				return;
 			}
-			acceptThreadControl("5");
+			acceptThreadControl(MSG_SEND, "5");
 			myLv2Adapter.add("操作：后退");
 			break;
 		case R.id.button6:// 右转
 			if (!checkCanControl()) {
 				return;
 			}
-			acceptThreadControl("6");
+			acceptThreadControl(MSG_SEND, "6");
 			myLv2Adapter.add("操作：右转");
 			break;
 		case R.id.button7:// 扫描
@@ -187,13 +188,13 @@ public class CarActivity extends BaseActivity {
 				return;
 			}
 			if ("手动".equals(bt8.getText().toString().trim())) {
-				acceptThreadControl("5a");
+				acceptThreadControl(MSG_SEND, "5a");
 				makeToast("开始自动驾驶成功");
 				myLv2Adapter.add("操作：开始自动驾驶");
 				bt8.setText("自动");
 				setViewEnable(false, bt1, bt2, bt3, bt4, bt5, bt6);
 			} else {
-				acceptThreadControl("5b");
+				acceptThreadControl(MSG_SEND, "5b");
 				makeToast("关闭手动驾驶成功");
 				myLv2Adapter.add("操作：关闭手动驾驶");
 				bt8.setText("手动");
@@ -225,7 +226,7 @@ public class CarActivity extends BaseActivity {
 			}
 			setViewEnable(false, bt1, bt2, bt3, bt4, bt5, bt6, bt8);
 			if (acceptThread != null) {
-				acceptThreadControl("end");
+				acceptThreadControl(MSG_SEND, "end");
 			} else {
 				acceptThread = new AcceptThread();
 				acceptThread.start();
@@ -237,10 +238,10 @@ public class CarActivity extends BaseActivity {
 		}
 	}
 
-	private void acceptThreadControl(String string) {
+	private void acceptThreadControl(int what, String string) {
 		if (acceptThreadHandler != null) {
 			Message msg = acceptThreadHandler.obtainMessage();
-			msg.what = MSG_SEND;
+			msg.what = what;
 			msg.obj = string;
 			acceptThreadHandler.sendMessage(msg);
 		}
@@ -280,15 +281,16 @@ public class CarActivity extends BaseActivity {
 				break;
 			case MSG_RESTART_SERVER_THREAD:
 				if (acceptThread != null) {
-					acceptThreadControl("cancle");
+					acceptThreadControl(MSG_SEND, "cancle");
 				}
 				acceptThread = null;
 				inputStream = null;
 				outputStream = null;
 				acceptThread = new AcceptThread();
 				acceptThread.start();
+				acceptThreadControl(MSG_STARTSERVER, "");
 				break;
-
+ 
 			default:
 				break;
 			}
@@ -333,6 +335,7 @@ public class CarActivity extends BaseActivity {
 		if (acceptThread == null) {
 			acceptThread = new AcceptThread();
 			acceptThread.start();
+			acceptThreadControl(MSG_STARTSERVER, "");
 		}
 		bluetoothFoundReceiver = new BluetoothFoundReceiver();
 		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -351,7 +354,7 @@ public class CarActivity extends BaseActivity {
 
 	private InputStream inputStream;
 	private OutputStream outputStream;
-	public Handler acceptThreadHandler;
+	private Handler acceptThreadHandler;
 
 	private class AcceptThread extends Thread {
 		private BluetoothServerSocket serverSocket;
@@ -370,19 +373,18 @@ public class CarActivity extends BaseActivity {
 				public void handleMessage(Message msg) {
 					switch (msg.what) {
 					case MSG_SEND:
-						if ("cancle".equals((String) msg.obj)) {
+						if ("end".equals((String) msg.obj)) {
 							cancle();
 						}
 						sendMsg((String) msg.obj);
+						break;
+					case MSG_STARTSERVER:
+						startServer();
 						break;
 					}
 				}
 			};
 			Looper.loop();
-			startServer();
-			if (!isRead) {
-				handler.sendEmptyMessage(MSG_RESTART_SERVER_THREAD);
-			}
 		}
 
 		private void startServer() {
@@ -442,6 +444,9 @@ public class CarActivity extends BaseActivity {
 				inputStream = null;
 				outputStream = null;
 				acceptThreadHandler = null;
+				if (!isRead) {
+					handler.sendEmptyMessage(MSG_RESTART_SERVER_THREAD);
+				}
 			}
 		}
 
@@ -483,6 +488,7 @@ public class CarActivity extends BaseActivity {
 				outputStream = null;
 				acceptThreadHandler = null;
 				isRead = false;
+				handler.sendEmptyMessage(MSG_RESTART_SERVER_THREAD);
 			}
 		}
 
