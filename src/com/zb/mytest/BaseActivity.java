@@ -7,6 +7,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -59,6 +60,10 @@ public abstract class BaseActivity extends Activity implements OnClickListener {
 		return (ImageView) findViewById(id);
 	}
 
+	protected Button findButton(int id) {
+		return (Button) findViewById(id);
+	}
+
 	protected void setListener(View... v) {
 		if (v != null) {
 			for (View view : v) {
@@ -97,6 +102,14 @@ public abstract class BaseActivity extends Activity implements OnClickListener {
 				ToastUtil.makeToast(BaseActivity.this, stringId, time);
 			}
 		});
+	}
+
+	protected void setViewEnable(boolean enable, View... views) {
+		if (views != null && views.length != 0) {
+			for (View view : views) {
+				view.setEnabled(enable);
+			}
+		}
 	}
 
 	@Override

@@ -14,11 +14,17 @@
  ************************************************************************************************/
 package com.zb.mytest.bluetooth;
 
+import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.UUID;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
+import android.os.ParcelUuid;
 import android.util.Log;
 
 /**
@@ -28,7 +34,7 @@ import android.util.Log;
  * @date 2016年5月6日 下午2:34:38
  */
 public class BluetoothUtils {
-	private static final String TAG = "ClsUtils";
+	private static final String TAG = "BluetoothUtils";
 
 	/**
 	 * 与设备配对 参考源码：platform/packages/apps/Settings.git
@@ -89,6 +95,48 @@ public class BluetoothUtils {
 	}
 
 	/**
+	 * Construct a BluetoothSocket.
+	 * 
+	 * @param type
+	 *            type of socket
+	 * @param fd
+	 *            fd to use for connected socket, or -1 for a new socket
+	 * @param auth
+	 *            require the remote device to be authenticated
+	 * @param encrypt
+	 *            require the connection to be encrypted
+	 * @param device
+	 *            remote device that this socket can connect to
+	 * @param port
+	 *            remote port
+	 * @param uuid
+	 *            SDP uuid
+	 */
+	public static BluetoothSocket createBluetoothSocket(BluetoothDevice device, int port, String uuid) {
+		Class[] d = new Class[] { int.class, int.class, boolean.class, boolean.class, BluetoothDevice.class, int.class,
+				ParcelUuid.class };
+		try {
+			Constructor anim = BluetoothSocket.class.getDeclaredConstructor(d);
+			anim.setAccessible(true);
+			return (BluetoothSocket) anim.newInstance(1, -1, false, false, device, port,
+					new ParcelUuid(UUID.fromString(uuid)));
+			// return new BluetoothSocket(1, -1, false, false, device, -1, new
+			// ParcelUuid(uuid));
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
 	 *
 	 * @param clsShow
 	 */
@@ -117,8 +165,9 @@ public class BluetoothUtils {
 		}
 	}
 
-	static public boolean pair(String strAddr, String strPsw) {
-		boolean result = false;
+	static public BluetoothDevice pair(String strAddr, String strPsw) {
+		BluetoothDevice remoteDevice = null;
+		// boolean result = false;
 		BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
 		bluetoothAdapter.cancelDiscovery();
@@ -139,8 +188,8 @@ public class BluetoothUtils {
 				Log.d("mylog", "NOT BOND_BONDED");
 				BluetoothUtils.setPin(device.getClass(), device, strPsw); // 手机和蓝牙采集器配对
 				BluetoothUtils.createBond(device.getClass(), device);
-				// remoteDevice = device; // 配对完毕就把这个设备对象传给全局的remoteDevice
-				result = true;
+				remoteDevice = device; // 配对完毕就把这个设备对象传给全局的remoteDevice
+				// result = true;
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 
@@ -154,14 +203,39 @@ public class BluetoothUtils {
 				BluetoothUtils.createBond(device.getClass(), device);
 				BluetoothUtils.setPin(device.getClass(), device, strPsw); // 手机和蓝牙采集器配对
 				BluetoothUtils.createBond(device.getClass(), device);
-				// remoteDevice = device; // 如果绑定成功，就直接把这个设备对象传给全局的remoteDevice
-				result = true;
+				remoteDevice = device; // 如果绑定成功，就直接把这个设备对象传给全局的remoteDevice
+				// result = true;
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				Log.d("mylog", "setPiN failed!");
 				e.printStackTrace();
 			}
 		}
-		return result;
+		return remoteDevice;
+	}
+
+	public static final int TYPE_RFCOMM = 1;
+	public static final int TYPE_SCO = 2;
+	public static final int TYPE_L2CAP = 3;
+
+	// address must use upper case
+	public static final BluetoothSocket createBluetoothSocket(int type, int fd, boolean auth, boolean encrypt,
+			String address, int port) throws IOException {
+		BluetoothSocket socket = null;
+		try {
+			Constructor<BluetoothSocket> cs = BluetoothSocket.class.getDeclaredConstructor(int.class, int.class,
+					boolean.class, boolean.class, String.class, int.class);
+			if (!cs.isAccessible()) {
+				cs.setAccessible(true);
+			}
+			socket = cs.newInstance(type, fd, auth, encrypt, address, port);
+		} catch (SecurityException e) {
+		} catch (NoSuchMethodException e) {
+		} catch (IllegalArgumentException e) {
+		} catch (InstantiationException e) {
+		} catch (IllegalAccessException e) {
+		} catch (InvocationTargetException e) {
+		}
+		return socket;
 	}
 }
