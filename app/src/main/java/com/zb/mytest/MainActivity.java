@@ -1,11 +1,5 @@
 package com.zb.mytest;
 
-import com.zb.mytest.MyService.MyIBinder;
-import com.zb.mytest.aidl.MyAIDL1Service;
-import com.zb.mytest.aidl.MyAIDLService;
-import com.zb.mytest.broadcast.MyBroadcastReceiver;
-import com.zb.mytest.broadcast.MydtBroadcastReceiver;
-
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -37,6 +31,11 @@ import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher.ViewFactory;
+
+import com.zb.mytest.MyService.MyIBinder;
+import com.zb.mytest.aidl.MyAIDL1Service;
+import com.zb.mytest.aidl.MyAIDLService;
+import com.zb.mytest.broadcast.MydtBroadcastReceiver;
 /**
  * @ClassName: MainActivity 
  *  @Description: ¸÷ÖÖserviceÊ¾Àý
